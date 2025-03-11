@@ -3,6 +3,13 @@ import os
 import re
 import streamlit as st
 
+# Check for openpyxl
+try:
+    import openpyxl
+except ImportError:
+    st.error("Missing dependency: 'openpyxl'. Please install it using `pip install openpyxl`.")
+    st.stop()
+
 def extract_month_from_filename(filename):
     """
     Extracts the month from the filename if present.
@@ -46,12 +53,12 @@ def process_files(uploaded_files, column_mapping, output_file="output.xlsx"):
     standardized_dfs = []
     
     for uploaded_file in uploaded_files:
-        df = pd.read_excel(uploaded_file)  # Read file
+        df = pd.read_excel(uploaded_file, engine="openpyxl")  # Use openpyxl explicitly
         df = standardize_columns(df, column_mapping, uploaded_file.name)
         standardized_dfs.append(df)
     
     final_df = pd.concat(standardized_dfs, ignore_index=True)
-    final_df.to_excel(output_file, index=False)
+    final_df.to_excel(output_file, index=False, engine="openpyxl")
     st.success(f"Unified file saved as {output_file}")
     
     # Provide a download link
